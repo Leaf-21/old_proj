@@ -30,7 +30,8 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 base_dir = os.path.dirname(os.path.dirname(__file__))
 project_root = os.path.dirname(base_dir)
 
-static_dir = os.path.join(os.path.dirname(__file__), "static")
+# 修改为指向 frontend 目录（作为统一的静态资源源）
+static_dir = os.path.join(project_root, "frontend")
 if os.path.isdir(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
