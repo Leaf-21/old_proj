@@ -1,19 +1,23 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
-import os
+from pathlib import Path
+
+# 项目根目录（backend 的上一级）
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+_ENV_FILE = _PROJECT_ROOT / ".env"
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Test Report Agent"
     API_V1_STR: str = "/api/v1"
     BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000"]
-    
+
     # Database
     DATABASE_URL: str = "sqlite+aiosqlite:///./test_report.db"
-    
+
     # Celery
     CELERY_BROKER_URL: str = "redis://localhost:6379/0"
     CELERY_RESULT_BACKEND: str = "redis://localhost:6379/0"
-    
+
     # LLM
     LLM_API_KEY: str
     LLM_MODEL: str = "glm-4-air"
@@ -23,6 +27,6 @@ class Settings(BaseSettings):
     LLM_TIMEOUT: int = 60
     LLM_MAX_RETRIES: int = 2
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding='utf-8', case_sensitive=True, extra='ignore')
+    model_config = SettingsConfigDict(env_file=str(_ENV_FILE), env_file_encoding='utf-8', case_sensitive=True, extra='ignore')
 
 settings = Settings()

@@ -1,0 +1,67 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.so
+.venv/
+venv/
+env/
+ENV/
+pip-wheel-metadata/
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Test and coverage output
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# Runtime data
+logs/
+*.log
+reports/
+uploads/
+backend/logs/
+backend/reports/
+backend/uploads/
+
+# Frontend dependencies and build output
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+dist/
+build/
+.vite/
+
+# IDE and OS files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Deployment artifacts
+deploy_package.zip
+*.zip
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+~$*

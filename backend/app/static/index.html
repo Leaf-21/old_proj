@@ -2,315 +2,491 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>Test Report Agent - 前端控制台</title>
+    <title>Test Report Agent</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html { overflow-y: scroll; }
+        :root {
+            --ink: #0c1c24;
+            --ink-soft: #20313b;
+            --teal: #1a6c74;
+            --teal-dark: #0f3f4a;
+            --sand: #f2ebe2;
+            --cloud: #f7f4ef;
+            --glass: rgba(255, 255, 255, 0.76);
+            --shadow: 0 25px 60px rgba(14, 28, 36, 0.18);
+            --border: rgba(18, 76, 84, 0.12);
+        }
+        body {
+            margin: 0;
+            color: var(--ink);
+            font-family: "Gill Sans", "Gill Sans MT", "Calibri", sans-serif;
+            background: radial-gradient(circle at top left, #fef5df, #f8efe4 40%, #e7f2ef 90%);
+            min-height: 100vh;
+        }
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+        }
+        .site-nav {
+            position: sticky; top: 0; z-index: 10;
+            display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+            background: linear-gradient(to bottom, rgba(247,244,239,0.95), rgba(247,244,239,0.75));
+            padding: 1rem 0.8rem;
+            border-bottom: 1px solid rgba(12,28,36,0.08);
+            backdrop-filter: blur(10px);
+        }
+        .site-brand { display: flex; align-items: center; gap: 0.75rem; }
+        .site-brand img { width: 32px; height: 32px; border-radius: 8px; object-fit: cover; }
+        .site-brand h1 { margin: 0; font-size: 1.05rem; font-weight: 700; letter-spacing: 0.5px; }
+        .site-brand p { margin: 0; font-size: 0.75rem; color: var(--ink-soft); }
+        .site-nav-actions { display: flex; align-items: center; gap: 0.75rem; }
+        .nav-pill {
+            padding: 0.45rem 1rem; border-radius: 999px; border: 2px solid var(--teal);
+            color: var(--teal-dark); text-decoration: none; font-size: 0.9rem; font-weight: 600;
+            transition: all 0.2s; background: transparent; cursor: pointer;
+        }
+        .nav-pill:hover { color: #fff; background: var(--teal); }
+        .nav-pill.primary { background: var(--teal); color: #fff; }
+        .nav-user-name { font-weight: 600; color: var(--teal-dark); font-size: 0.9rem; }
+        .nav-lang { color: var(--ink-soft); font-weight: 600; cursor: pointer; text-decoration: none; font-size: 0.9rem; }
+        .nav-lang:hover { color: var(--teal-dark); }
+        .btn-primary {
+            background: linear-gradient(120deg, var(--teal), var(--teal-dark)); color: #fff;
+            border: none; cursor: pointer; transition: all 0.2s;
+            box-shadow: 0 10px 20px rgba(18,76,84,0.25);
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 14px 28px rgba(18,76,84,0.35); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .form-input {
+            background: rgba(255,255,255,0.9); border: 1px solid rgba(12,28,36,0.18);
+            color: var(--ink); transition: all 0.2s;
+        }
+        .form-input:focus { border-color: var(--teal); outline: none; box-shadow: 0 0 0 2px rgba(26,108,116,0.15); }
+        .card-header {
+            border-bottom: 1px solid var(--border); padding: 1rem 1.5rem;
+        }
+        .card-body { padding: 1.25rem 1.5rem; }
+        .step-num {
+            flex-shrink: 0; width: 1.4rem; height: 1.4rem; border-radius: 50%;
+            background: rgba(26,108,116,0.12); color: var(--teal);
+            font-size: 0.7rem; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .log-box {
+            max-height: 220px; overflow-y: auto;
+            background: rgba(255,255,255,0.5); border: 1px solid var(--border);
+            border-radius: 0.75rem; padding: 0.75rem 1rem;
+        }
+        .log-line { font-size: 0.8rem; color: var(--ink-soft); padding: 2px 0; }
+        .status-badge {
+            display: inline-block; padding: 0.2rem 0.6rem; border-radius: 999px;
+            font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+        }
+        .footer-bar {
+            text-align: center; padding: 1.5rem; font-size: 0.85rem; color: var(--ink-soft);
+            border-top: 1px solid var(--border);
+        }
+        @media (max-width: 900px) {
+            .nav-center-links { display: none !important; }
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-slate-950 text-slate-100">
-    <div class="min-h-screen flex flex-col">
-        <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur">
-            <div class="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-violet-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-violet-500/40">
-                        <span class="text-lg font-bold">TR</span>
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-semibold tracking-tight">Test Report Agent</h1>
-                        <p class="text-xs text-slate-400">LLM 驱动的测试结果分析与报告生成</p>
-                    </div>
+<body>
+    <div id="app" class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Header -->
+        <header class="site-nav mb-8">
+            <div class="site-brand">
+                <img src="/mooctestlogo.png" alt="Mooctest logo" onerror="this.style.display='none'">
+                <div>
+                    <h1>Mooctest AI Studio · Report</h1>
+                    <p>{{ t('subtitle') }}</p>
                 </div>
-                <div class="hidden sm:flex items-center gap-4 text-xs text-slate-400">
-                    <div class="flex items-center gap-1.5">
-                        <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span>API: /api/v1/jobs/upload</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <span class="h-2 w-2 rounded-full bg-cyan-400"></span>
-                        <span>后端: FastAPI + Celery + LLM</span>
-                    </div>
-                </div>
+            </div>
+            <div class="nav-center-links" style="display:flex;gap:1.5rem;align-items:center;">
+                <a class="nav-lang" @click.prevent="lang = lang === 'zh' ? 'en' : 'zh'">{{ t('langSwitch') }}</a>
+            </div>
+            <div class="site-nav-actions">
+                <template v-if="currentUser">
+                    <span class="nav-user-name">{{ currentUser.username }}</span>
+                    <button class="nav-pill" @click="handleLogout">{{ t('logout') }}</button>
+                </template>
+                <template v-else>
+                    <a class="nav-pill" :href="portalUrl(lang === 'zh' ? '/zh/login' : '/login')">{{ t('login') }}</a>
+                    <a class="nav-pill primary" :href="portalUrl(lang === 'zh' ? '/zh/register' : '/register')">{{ t('register') }}</a>
+                </template>
             </div>
         </header>
 
-        <main class="flex-1">
-            <div class="mx-auto max-w-6xl px-6 py-8 grid gap-6 lg:grid-cols-3">
-                <section class="lg:col-span-2 space-y-6">
-                    <div class="rounded-2xl border border-slate-800 bg-slate-900/60 shadow-xl shadow-sky-500/10">
-                        <div class="border-b border-slate-800 px-6 py-4 flex items-center justify-between">
-                            <div>
-                                <h2 class="text-lg font-semibold tracking-tight">上传测试结果 Excel</h2>
-                                <p class="mt-1 text-xs text-slate-400">
-                                    选择包含测试用例执行结果的 <span class="font-mono">.xlsx</span> 文件，提交后端进行解析、聚类与报告生成。
-                                </p>
-                            </div>
-                        </div>
-                        <div class="px-6 py-5 space-y-5">
-                            <div class="space-y-3">
-                                <label class="block text-sm font-medium text-slate-200">测试结果文件</label>
-                                <label class="flex items-center gap-3 rounded-xl border border-dashed border-slate-700 bg-slate-900/60 px-4 py-3 cursor-pointer hover:border-sky-500 hover:bg-slate-900/80 transition">
-                                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-sky-500/10 text-sky-400">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-6m0 0L7 13m2-2 2 2m4 3v-6m0 0 2 2m-2-2-2 2M3 7h18M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z"/>
-                                        </svg>
-                                    </div>
-                                    <div class="flex-1">
-                                        <p class="text-sm font-medium" id="file-label">点击选择 Excel 文件</p>
-                                        <p class="text-xs text-slate-400">支持 .xlsx，建议使用「测试用例汇总.xlsx」格式</p>
-                                    </div>
-                                    <input id="file-input" type="file" accept=".xlsx" class="hidden">
-                                </label>
-                            </div>
-
-                            <div class="flex items-center justify-between gap-3">
-                                <div class="text-xs text-slate-400 flex items-center gap-2">
-                                    <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-800 text-[10px] font-semibold text-sky-300 ring-1 ring-slate-700">TIP</span>
-                                    <span>确保后端已启动：<span class="font-mono text-slate-300">uvicorn backend.app.main:app --reload</span></span>
-                                </div>
-                                <button id="upload-btn" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-sky-500 to-violet-500 px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/40 disabled:cursor-not-allowed disabled:opacity-60">
-                                    <span id="upload-btn-text">上传并启动分析</span>
-                                    <svg id="upload-spinner" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4 hidden animate-spin" fill="none" stroke="currentColor" stroke-width="1.8">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4V2m0 20v-2M4 12H2m20 0h-2M5.64 5.64 4.22 4.22m15.56 15.56-1.42-1.42M18.36 5.64l1.42-1.42M5.64 18.36 4.22 19.78"/>
+        <!-- Main grid -->
+        <div class="grid gap-6 lg:grid-cols-3">
+            <section class="lg:col-span-2 space-y-6">
+                <!-- Upload Card -->
+                <div class="glass-panel">
+                    <div class="card-header">
+                        <h2 style="font-size:1.1rem;font-weight:700">{{ t('uploadTitle') }}</h2>
+                        <p style="margin-top:4px;font-size:0.8rem;color:var(--ink-soft)">{{ t('uploadDesc') }}</p>
+                    </div>
+                    <div class="card-body space-y-5">
+                        <div>
+                            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--ink-soft);margin-bottom:0.5rem">{{ t('fileLabel') }}</label>
+                            <label class="flex items-center gap-3 rounded-xl form-input px-4 py-3 cursor-pointer" style="border-style:dashed;">
+                                <div style="flex-shrink:0;width:2.5rem;height:2.5rem;border-radius:0.5rem;background:rgba(26,108,116,0.1);color:var(--teal);display:flex;align-items:center;justify-content:center;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:1.25rem;height:1.25rem" fill="none" stroke="currentColor" stroke-width="1.8">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-6m0 0L7 13m2-2 2 2m4 3v-6m0 0 2 2m-2-2-2 2M3 7h18M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z"/>
                                     </svg>
-                                </button>
+                                </div>
+                                <div style="flex:1">
+                                    <p style="font-weight:600;font-size:0.9rem">{{ fileName || t('chooseFile') }}</p>
+                                    <p style="font-size:0.75rem;color:var(--ink-soft)">{{ t('fileHint') }}</p>
+                                </div>
+                                <input ref="fileInput" type="file" accept=".xlsx" class="hidden" @change="handleFileChange">
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between gap-3">
+                            <div style="font-size:0.75rem;color:var(--ink-soft);display:flex;align-items:center;gap:0.5rem">
+                                <span style="display:inline-flex;width:1.4rem;height:1.4rem;align-items:center;justify-content:center;border-radius:50%;background:rgba(26,108,116,0.1);color:var(--teal);font-size:0.6rem;font-weight:700">TIP</span>
+                                <span>{{ t('tip') }}</span>
+                            </div>
+                            <button
+                                @click="startUpload"
+                                :disabled="uploading || !fileRef"
+                                class="btn-primary"
+                                style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.6rem 1.2rem;border-radius:0.75rem;font-size:0.9rem;font-weight:700"
+                            >
+                                <span>{{ uploading ? t('submitting') : t('startAnalysis') }}</span>
+                                <svg v-if="uploading" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:1rem;height:1rem" class="animate-spin" fill="none" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4V2m0 20v-2M4 12H2m20 0h-2M5.64 5.64 4.22 4.22m15.56 15.56-1.42-1.42M18.36 5.64l1.42-1.42M5.64 18.36 4.22 19.78"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Card -->
+                <div class="glass-panel">
+                    <div class="card-header flex items-center justify-between">
+                        <h3 style="font-size:0.95rem;font-weight:700">{{ t('taskStatus') }}</h3>
+                        <span style="font-size:0.7rem;color:var(--ink-soft);background:rgba(26,108,116,0.08);padding:0.15rem 0.5rem;border-radius:999px">{{ t('statusHint') }}</span>
+                    </div>
+                    <div class="card-body space-y-3">
+                        <!-- Idle -->
+                        <div v-if="!jobId" style="padding:0.75rem 1rem;border-radius:0.75rem;background:rgba(255,255,255,0.4);border:1px solid var(--border)">
+                            <p style="font-size:0.8rem;color:var(--ink-soft)">{{ t('idleMsg') }}</p>
+                        </div>
+                        <!-- Active -->
+                        <div v-if="jobId" class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="status-badge" :style="statusBadgeStyle">{{ statusLabel }}</span>
+                                <span style="font-size:0.7rem;color:var(--ink-soft)">Job ID: <span style="font-family:monospace">{{ jobId }}</span></span>
+                            </div>
+                            <div class="log-box">
+                                <div class="log-line" v-for="(line, idx) in logs" :key="idx">{{ line }}</div>
+                                <div v-if="!logs.length" style="font-size:0.8rem;color:var(--ink-soft)">{{ t('noLogs') }}</div>
+                            </div>
+                            <!-- Report link -->
+                            <a v-if="jobStatus === 'completed' && reportUrl" :href="reportUrl" target="_blank"
+                               class="btn-primary"
+                               style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.5rem 1rem;border-radius:0.5rem;text-decoration:none;font-size:0.85rem;font-weight:700">
+                                <span>{{ t('viewReport') }}</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:0.85rem;height:0.85rem" fill="none" stroke="currentColor" stroke-width="1.7">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 17 17 7M7 7h10v10"/>
+                                </svg>
+                            </a>
+                        </div>
+                        <!-- Error -->
+                        <div v-if="jobError" style="padding:0.75rem 1rem;border-radius:0.75rem;background:rgba(220,38,38,0.06);border:1px solid rgba(220,38,38,0.2);color:#991b1b;font-size:0.8rem">{{ jobError }}</div>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="space-y-4">
+                <!-- Pipeline -->
+                <div class="glass-panel">
+                    <div class="card-header">
+                        <h3 style="font-size:0.95rem;font-weight:700">{{ t('pipelineTitle') }}</h3>
+                    </div>
+                    <div class="card-body space-y-3">
+                        <div v-for="(step, idx) in t('pipelineSteps')" :key="idx" class="flex items-start gap-3">
+                            <span class="step-num" style="margin-top:2px">{{ idx + 1 }}</span>
+                            <div>
+                                <p style="font-weight:600;font-size:0.85rem">{{ step.title }}</p>
+                                <p style="font-size:0.78rem;color:var(--ink-soft);margin-top:2px">{{ step.desc }}</p>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="rounded-2xl border border-slate-800 bg-slate-900/60">
-                        <div class="border-b border-slate-800 px-6 py-3.5 flex items-center justify-between">
-                            <h3 class="text-sm font-semibold tracking-tight">任务状态</h3>
-                            <span class="text-[11px] rounded-full bg-slate-800 px-2 py-0.5 text-slate-400">实时进度与报告链接</span>
-                        </div>
-                        <div class="px-6 py-4 space-y-3 text-sm">
-                            <div id="status-box" class="rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-slate-400">
-                                <p class="text-xs text-slate-500">尚未开始任务，请先上传 Excel 文件。</p>
-                            </div>
-                            <div id="error-box" class="hidden rounded-xl border border-rose-500/40 bg-rose-950/40 px-4 py-3 text-xs text-rose-100"></div>
-                        </div>
+                <!-- Tips -->
+                <div class="glass-panel" style="padding:1.25rem 1.5rem;">
+                    <h4 style="font-weight:700;font-size:0.9rem;margin-bottom:0.5rem">{{ t('tipsTitle') }}</h4>
+                    <ul style="list-style:disc;padding-left:1.2rem;font-size:0.8rem;color:var(--ink-soft)">
+                        <li v-for="(tip, idx) in t('tips')" :key="idx" style="margin-bottom:0.3rem">{{ tip }}</li>
+                    </ul>
+                </div>
+
+                <!-- Tech stack -->
+                <div class="glass-panel hidden sm:block" style="padding:1rem 1.25rem;font-size:0.78rem;color:var(--ink-soft)">
+                    <div class="flex items-center gap-1.5" style="margin-bottom:0.4rem">
+                        <span style="width:0.5rem;height:0.5rem;border-radius:50%;background:#15803d;display:inline-block"></span>
+                        <span>API: /api/v1/jobs/upload</span>
                     </div>
-                </section>
-
-                <aside class="space-y-4">
-                    <div class="rounded-2xl border border-slate-800 bg-slate-900/60">
-                        <div class="border-b border-slate-800 px-5 py-3.5">
-                            <h3 class="text-sm font-semibold tracking-tight">后端流水线一览</h3>
-                        </div>
-                        <div class="px-5 py-4 space-y-3 text-xs text-slate-300">
-                            <div class="flex items-start gap-3">
-                                <span class="mt-0.5 h-5 w-5 rounded-full bg-sky-500/15 text-[11px] font-semibold text-sky-300 flex items-center justify-center">1</span>
-                                <div>
-                                    <p class="font-medium">数据接入（Ingest）</p>
-                                    <p class="mt-0.5 text-slate-400">解析 Excel，抽取测试用例字段，并进行结果归一化。</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start gap-3">
-                                <span class="mt-0.5 h-5 w-5 rounded-full bg-sky-500/15 text-[11px] font-semibold text-sky-300 flex items-center justify-center">2</span>
-                                <div>
-                                    <p class="font-medium">模块打标 & 结果审计</p>
-                                    <p class="mt-0.5 text-slate-400">使用 LLM 并发识别功能模块，并对疑似“假成功”用例进行审计。</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start gap-3">
-                                <span class="mt-0.5 h-5 w-5 rounded-full bg-sky-500/15 text-[11px] font-semibold text-sky-300 flex items-center justify-center">3</span>
-                                <div>
-                                    <p class="font-medium">缺陷事实提取 & 聚类</p>
-                                    <p class="mt-0.5 text-slate-400">抽取缺陷描述，进行语义聚类，形成缺陷簇和聚类摘要。</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start gap-3">
-                                <span class="mt-0.5 h-5 w-5 rounded-full bg-sky-500/15 text-[11px] font-semibold text-sky-300 flex items-center justify-center">4</span>
-                                <div>
-                                    <p class="font-medium">报告生成</p>
-                                    <p class="mt-0.5 text-slate-400">基于统计信息和缺陷聚类，生成交互式 HTML 测试报告。</p>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="flex items-center gap-1.5">
+                        <span style="width:0.5rem;height:0.5rem;border-radius:50%;background:var(--teal);display:inline-block"></span>
+                        <span>{{ t('techStack') }}</span>
                     </div>
+                </div>
+            </aside>
+        </div>
 
-                    <div class="rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 px-5 py-4 text-xs text-slate-300 space-y-2">
-                        <p class="font-semibold text-slate-100">使用提示</p>
-                        <ul class="list-disc list-inside space-y-1 text-slate-400">
-                            <li>建议先用仓库自带的 <span class="font-mono text-slate-200">sample_test_results.xlsx</span> 或 <span class="font-mono text-slate-200">测试数据.xlsx</span> 进行测试。</li>
-                            <li>上传后会自动轮询任务状态，并展示各阶段进度日志。</li>
-                            <li>任务完成后，可直接点击「查看分析报告」在新标签页中打开 HTML 报告。</li>
-                        </ul>
-                    </div>
-                </aside>
-            </div>
-        </main>
-
-        <footer class="border-t border-slate-800 bg-slate-900/80">
-            <div class="mx-auto max-w-6xl px-6 py-3 flex items-center justify-between text-xs text-slate-500">
-                <span>Test Report Agent · LLM 驱动测试分析控制台</span>
-                <span>后端：FastAPI · 前端：原生 JS + Tailwind CDN</span>
-            </div>
+        <footer class="footer-bar" style="margin-top:2rem">
+            <span>{{ t('footerLeft') }} · {{ t('footerRight') }}</span>
         </footer>
     </div>
 
     <script>
-        const fileInput = document.getElementById('file-input');
-        const fileLabel = document.getElementById('file-label');
-        const uploadBtn = document.getElementById('upload-btn');
-        const uploadBtnText = document.getElementById('upload-btn-text');
-        const uploadSpinner = document.getElementById('upload-spinner');
-        const statusBox = document.getElementById('status-box');
-        const errorBox = document.getElementById('error-box');
-        let pollTimer = null;
-        let currentJobId = null;
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+        const SESSION_KEY = 'mooctest_session';
 
-        function escapeHtml(str) {
-            return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-        }
+        createApp({
+            setup() {
+                const bootstrapSessionFromQuery = () => {
+                    try {
+                        const params = new URLSearchParams(window.location.search);
+                        const sid = (params.get('session_id') || '').trim();
+                        if (!sid) return;
+                        sessionStorage.setItem(SESSION_KEY, sid);
+                        params.delete('session_id');
+                        const search = params.toString();
+                        const nextUrl = `${window.location.pathname}${search ? `?${search}` : ''}${window.location.hash}`;
+                        window.history.replaceState({}, '', nextUrl);
+                    } catch (e) { console.warn('Failed to bootstrap session from query', e); }
+                };
+                bootstrapSessionFromQuery();
 
-        function setLoading(isLoading) {
-            uploadBtn.disabled = isLoading || !fileInput.files[0];
-            uploadSpinner.classList.toggle('hidden', !isLoading);
-            uploadBtnText.textContent = isLoading ? '正在提交至后端...' : '上传并启动分析';
-        }
+                const detectLang = () => {
+                    const params = new URLSearchParams(window.location.search);
+                    const qLang = (params.get('lang') || '').trim().toLowerCase();
+                    if (qLang === 'en' || qLang === 'zh') return qLang;
+                    const saved = localStorage.getItem('mooctest_lang');
+                    if (saved === 'en' || saved === 'zh') return saved;
+                    return (navigator.language || '').toLowerCase().startsWith('zh') ? 'zh' : 'en';
+                };
+                const lang = ref(detectLang());
 
-        fileInput.addEventListener('change', () => {
-            const file = fileInput.files[0];
-            if (file) {
-                fileLabel.textContent = file.name + '（' + Math.round(file.size / 1024) + ' KB）';
-                uploadBtn.disabled = false;
-            } else {
-                fileLabel.textContent = '点击选择 Excel 文件';
-                uploadBtn.disabled = true;
-            }
-        });
+                const currentUser = ref(null);
+                const fileName = ref('');
+                const fileRef = ref(null);
+                const uploading = ref(false);
+                const jobId = ref('');
+                const jobStatus = ref('');
+                const jobError = ref('');
+                const reportUrl = ref('');
+                const logs = ref([]);
+                let pollTimer = null;
 
-        uploadBtn.addEventListener('click', async () => {
-            const file = fileInput.files[0];
-            if (!file) return;
+                const translations = {
+                    zh: {
+                        subtitle: 'LLM 驱动的测试结果分析与报告生成',
+                        langSwitch: 'English',
+                        login: '登录', register: '注册', logout: '退出',
+                        uploadTitle: '上传测试结果 Excel',
+                        uploadDesc: '选择包含测试用例执行结果的 .xlsx 文件，提交后端进行解析、聚类与报告生成。',
+                        fileLabel: '测试结果文件',
+                        chooseFile: '点击选择 Excel 文件',
+                        fileHint: '支持 .xlsx，建议使用「测试用例汇总.xlsx」格式',
+                        startAnalysis: '上传并启动分析',
+                        submitting: '正在提交至后端...',
+                        tip: '确保后端已启动：uvicorn backend.app.main:app --reload',
+                        taskStatus: '任务状态',
+                        statusHint: '实时进度与报告链接',
+                        idleMsg: '尚未开始任务，请先上传 Excel 文件。',
+                        noLogs: '暂无日志...',
+                        viewReport: '查看分析报告',
+                        pipelineTitle: '后端流水线一览',
+                        pipelineSteps: [
+                            { title: '数据接入（Ingest）', desc: '解析 Excel，抽取测试用例字段，并进行结果归一化。' },
+                            { title: '模块打标 & 结果审计', desc: '使用 LLM 并发识别功能模块，并对疑似"假成功"用例进行审计。' },
+                            { title: '缺陷事实提取 & 聚类', desc: '抽取缺陷描述，进行语义聚类，形成缺陷簇和聚类摘要。' },
+                            { title: '报告生成', desc: '基于统计信息和缺陷聚类，生成交互式 HTML 测试报告。' }
+                        ],
+                        tipsTitle: '使用提示',
+                        tips: [
+                            '建议先用仓库自带的 sample_test_results.xlsx 或 测试数据.xlsx 进行测试。',
+                            '上传后会自动轮询任务状态，并展示各阶段进度日志。',
+                            '任务完成后，可直接点击「查看分析报告」在新标签页中打开 HTML 报告。'
+                        ],
+                        techStack: '后端: FastAPI + Celery + LLM',
+                        footerLeft: 'Test Report Agent · LLM 驱动测试分析控制台',
+                        footerRight: '后端：FastAPI · 前端：Vue 3 + Tailwind',
+                        statusRunning: '运行中', statusCompleted: '已完成', statusFailed: '失败',
+                        statusPending: '等待中', statusUnknown: '未知',
+                        uploadSuccess: '文件已上传，等待开始处理。',
+                        httpError: 'HTTP 错误', requestFailed: '请求失败', taskFailed: '任务失败'
+                    },
+                    en: {
+                        subtitle: 'LLM-powered test result analysis & report generation',
+                        langSwitch: '中文',
+                        login: 'Login', register: 'Register', logout: 'Logout',
+                        uploadTitle: 'Upload Test Result Excel',
+                        uploadDesc: 'Select an .xlsx file containing test case execution results for backend parsing, clustering, and report generation.',
+                        fileLabel: 'Test Result File',
+                        chooseFile: 'Click to select Excel file',
+                        fileHint: 'Supports .xlsx format',
+                        startAnalysis: 'Upload & Start Analysis',
+                        submitting: 'Submitting to backend...',
+                        tip: 'Ensure backend is running: uvicorn backend.app.main:app --reload',
+                        taskStatus: 'Task Status',
+                        statusHint: 'Live progress & report link',
+                        idleMsg: 'No task started yet. Please upload an Excel file first.',
+                        noLogs: 'No logs yet...',
+                        viewReport: 'View Analysis Report',
+                        pipelineTitle: 'Backend Pipeline Overview',
+                        pipelineSteps: [
+                            { title: 'Data Ingestion', desc: 'Parse Excel, extract test case fields, and normalize results.' },
+                            { title: 'Module Tagging & Audit', desc: 'Use LLM to concurrently identify modules and audit suspicious "false pass" cases.' },
+                            { title: 'Defect Extraction & Clustering', desc: 'Extract defect descriptions, perform semantic clustering, and generate cluster summaries.' },
+                            { title: 'Report Generation', desc: 'Generate interactive HTML test reports based on statistics and defect clusters.' }
+                        ],
+                        tipsTitle: 'Tips',
+                        tips: [
+                            'Try with the included sample_test_results.xlsx or test data files first.',
+                            'After upload, task status is polled automatically with stage-by-stage progress logs.',
+                            'Once completed, click "View Analysis Report" to open the HTML report in a new tab.'
+                        ],
+                        techStack: 'Backend: FastAPI + Celery + LLM',
+                        footerLeft: 'Test Report Agent · LLM-powered Analysis Console',
+                        footerRight: 'Backend: FastAPI · Frontend: Vue 3 + Tailwind',
+                        statusRunning: 'Running', statusCompleted: 'Completed', statusFailed: 'Failed',
+                        statusPending: 'Pending', statusUnknown: 'Unknown',
+                        uploadSuccess: 'File uploaded, waiting to start processing.',
+                        httpError: 'HTTP Error', requestFailed: 'Request failed', taskFailed: 'Task failed'
+                    }
+                };
 
-            setLoading(true);
-            errorBox.classList.add('hidden');
-            errorBox.textContent = '';
-            statusBox.innerHTML = '<p class="text-xs text-sky-300">已提交请求到后端，正在等待响应...</p>';
+                const t = (key) => translations[lang.value][key] || key;
+                watch(lang, (val) => { localStorage.setItem('mooctest_lang', val); });
 
-            try {
-                const formData = new FormData();
-                formData.append('file', file);
-
-                const resp = await fetch('/api/v1/jobs/upload', {
-                    method: 'POST',
-                    body: formData
+                const statusLabel = computed(() => {
+                    const map = { running: t('statusRunning'), completed: t('statusCompleted'), failed: t('statusFailed'), pending: t('statusPending') };
+                    return map[jobStatus.value] || t('statusUnknown');
+                });
+                const statusBadgeStyle = computed(() => {
+                    const map = {
+                        running: 'background:rgba(26,108,116,0.12);color:#1a6c74',
+                        pending: 'background:rgba(247,176,69,0.15);color:#b45309',
+                        completed: 'background:rgba(21,128,61,0.12);color:#15803d',
+                        failed: 'background:rgba(220,38,38,0.1);color:#991b1b',
+                    };
+                    return map[jobStatus.value] || 'background:rgba(12,28,36,0.08);color:var(--ink-soft)';
                 });
 
-                const data = await resp.json().catch(() => ({}));
+                const getSessionId = () => sessionStorage.getItem(SESSION_KEY) || '';
+                let authRequired = true;
+                const resolvePortalOrigin = () => {
+                    const key = 'MOOCTEST_PORTAL_ORIGIN';
+                    const saved = (localStorage.getItem(key) || sessionStorage.getItem(key) || '').trim();
+                    if (saved) return saved.replace(/\/+$/, '');
+                    if (window.location.port === '5173' || window.location.port === '') return window.location.origin;
+                    return `${window.location.protocol}//${window.location.hostname}:5173`;
+                };
+                const portalOrigin = resolvePortalOrigin();
+                const portalUrl = (path) => `${portalOrigin}${String(path||'/').startsWith('/')?String(path||'/'):'/'+String(path||'')}`;
 
-                if (!resp.ok) {
-                    errorBox.textContent = 'HTTP 错误：' + resp.status;
-                    errorBox.classList.remove('hidden');
-                    statusBox.innerHTML = '<p class="text-xs text-rose-300">请求失败，请检查后端是否已启动。</p>';
-                    return;
-                }
-
-                const jobId = data.job_id || '未知';
-                const message = data.message || '已收到后端响应，正在后台执行流水线。';
-                currentJobId = jobId;
-
-                statusBox.innerHTML = `
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-[11px] rounded-full bg-emerald-500/10 px-2 py-0.5 text-emerald-300">上传成功</span>
-                            <span class="text-[11px] text-slate-400">接口：/api/v1/jobs/upload</span>
-                        </div>
-                        <div class="space-y-1 text-xs">
-                            <p class="text-slate-400">Job ID</p>
-                            <p class="font-mono text-[11px] text-slate-100 break-all">${jobId}</p>
-                        </div>
-                        <p class="text-xs text-slate-300">消息：${message}</p>
-                        <div class="mt-2 text-xs text-slate-400 flex items-center gap-2">
-                            <span class="h-2 w-2 rounded-full bg-sky-400 animate-pulse"></span>
-                            <span>正在获取任务进度...</span>
-                        </div>
-                    </div>
-                `;
-
-                if (pollTimer) {
-                    clearInterval(pollTimer);
-                    pollTimer = null;
-                }
-                pollTimer = setInterval(async () => {
-                    if (!currentJobId) return;
+                const redirectToLogin = () => {
+                    const loginPath = lang.value === 'zh' ? '/zh/login' : '/login';
+                    window.location.href = `${portalUrl(loginPath)}?return=${encodeURIComponent(window.location.href)}`;
+                };
+                const authFetch = async (url, options = {}) => {
+                    const sessionId = getSessionId();
+                    if (authRequired && !sessionId) { redirectToLogin(); throw new Error('Not authenticated'); }
+                    const headers = new Headers(options.headers || {});
+                    if (sessionId) headers.set('X-Session-Id', sessionId);
+                    const resp = await fetch(url, { ...options, headers });
+                    if (resp.status === 401 && authRequired) { redirectToLogin(); throw new Error('Not authenticated'); }
+                    return resp;
+                };
+                const ensureAuthenticated = async () => {
+                    const sessionId = getSessionId();
+                    const headers = new Headers();
+                    if (sessionId) headers.set('X-Session-Id', sessionId);
                     try {
-                        const res = await fetch(`/api/v1/jobs/status/${currentJobId}`);
-                        if (!res.ok) return;
-                        const statusData = await res.json();
-                        const logs = Array.isArray(statusData.logs) ? statusData.logs : [];
-                        const status = statusData.status || 'unknown';
-                        const reportUrl = statusData.report_url;
-                        const errorMsg = statusData.error;
-
-                        let statusLabel = '未知状态';
-                        let statusColor = 'bg-slate-700 text-slate-200';
-                        if (status === 'running') {
-                            statusLabel = '运行中';
-                            statusColor = 'bg-sky-500/10 text-sky-300';
-                        } else if (status === 'completed') {
-                            statusLabel = '已完成';
-                            statusColor = 'bg-emerald-500/10 text-emerald-300';
-                        } else if (status === 'failed') {
-                            statusLabel = '失败';
-                            statusColor = 'bg-rose-500/10 text-rose-300';
-                        }
-
-                        const logsHtml = logs.length
-                            ? logs.map(l => `<div class="text-xs text-slate-300">${escapeHtml(l)}</div>`).join('')
-                            : '<div class="text-xs text-slate-500">暂无日志...</div>';
-
-                        statusBox.innerHTML = `
-                            <div class="space-y-3">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-[11px] rounded-full px-2 py-0.5 ${statusColor}">${statusLabel}</span>
-                                    <span class="text-[11px] text-slate-400">Job ID: <span class="font-mono">${escapeHtml(statusData.job_id || '')}</span></span>
-                                </div>
-                                <div class="max-h-44 overflow-auto rounded-lg bg-slate-950/80 border border-slate-800 px-3 py-2 space-y-1">
-                                    ${logsHtml}
-                                </div>
-                                ${reportUrl && status === 'completed'
-                                    ? `<a href="${escapeHtml(reportUrl)}" target="_blank" class="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-sky-500 to-violet-500 px-3 py-1.5 text-xs font-semibold text-slate-950 shadow-md shadow-sky-500/40">
-                                           <span>查看分析报告</span>
-                                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="1.7">
-                                               <path stroke-linecap="round" stroke-linejoin="round" d="M7 17 17 7M7 7h10v10"/>
-                                           </svg>
-                                       </a>`
-                                    : ''
-                                }
-                            </div>
-                        `;
-
-                        if (errorMsg && status === 'failed') {
-                            errorBox.textContent = '任务失败：' + errorMsg;
-                            errorBox.classList.remove('hidden');
-                        } else if (!errorMsg) {
-                            errorBox.classList.add('hidden');
-                            errorBox.textContent = '';
-                        }
-
-                        if (status === 'completed' || status === 'failed' || status === 'unknown') {
-                            clearInterval(pollTimer);
-                            pollTimer = null;
+                        const resp = await fetch('/api/auth/session', { headers });
+                        if (!resp.ok) { authRequired = true; if (resp.status === 401 || !sessionId) redirectToLogin(); return false; }
+                        try { const body = await resp.json(); authRequired = body.auth_enabled !== false; } catch (err) { authRequired = true; }
+                        if (authRequired && !sessionId) { redirectToLogin(); return false; }
+                        return true;
+                    } catch (e) { authRequired = true; if (!sessionId) redirectToLogin(); return false; }
+                };
+                const fetchUser = async () => {
+                    const sessionId = getSessionId();
+                    if (!sessionId) { console.warn('[fetchUser] no sessionId'); return; }
+                    try {
+                        const resp = await fetch('/api/auth/user', { headers: { 'X-Session-Id': sessionId } });
+                        if (resp.ok) {
+                            currentUser.value = await resp.json();
+                        } else {
+                            console.warn('[fetchUser] resp not ok:', resp.status);
                         }
                     } catch (e) {
+                        console.error('[fetchUser] error:', e);
                     }
-                }, 3000);
-            } catch (err) {
-                errorBox.textContent = '前端请求异常：' + err;
-                errorBox.classList.remove('hidden');
-                statusBox.innerHTML = '<p class="text-xs text-rose-300">请求失败，请检查网络与后端服务。</p>';
-            } finally {
-                setLoading(false);
-            }
-        });
+                };
+                const handleLogout = () => { sessionStorage.removeItem(SESSION_KEY); currentUser.value = null; redirectToLogin(); };
 
-        setLoading(false);
+                const handleFileChange = (event) => {
+                    const file = event.target.files[0];
+                    if (file) { fileName.value = file.name + ' (' + Math.round(file.size / 1024) + ' KB)'; fileRef.value = file; }
+                    else { fileName.value = ''; fileRef.value = null; }
+                };
+
+                const startUpload = async () => {
+                    if (!fileRef.value) return;
+                    uploading.value = true; jobId.value = ''; jobStatus.value = ''; jobError.value = ''; reportUrl.value = ''; logs.value = [];
+                    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+                    try {
+                        const formData = new FormData();
+                        formData.append('file', fileRef.value);
+                        const resp = await authFetch('/api/v1/jobs/upload', { method: 'POST', body: formData });
+                        const data = await resp.json().catch(() => ({}));
+                        if (!resp.ok) { jobError.value = `${t('httpError')}: ${resp.status}`; return; }
+                        jobId.value = data.job_id || ''; jobStatus.value = 'pending'; logs.value = [t('uploadSuccess')];
+                        pollTimer = setInterval(async () => {
+                            if (!jobId.value) return;
+                            try {
+                                const res = await authFetch(`/api/v1/jobs/status/${jobId.value}`);
+                                if (!res.ok) return;
+                                const sd = await res.json();
+                                jobStatus.value = sd.status || 'unknown';
+                                logs.value = Array.isArray(sd.logs) ? sd.logs : [];
+                                if (sd.report_url) reportUrl.value = sd.report_url;
+                                if (sd.error && sd.status === 'failed') jobError.value = `${t('taskFailed')}: ${sd.error}`;
+                                if (sd.status === 'completed' || sd.status === 'failed' || sd.status === 'unknown') { clearInterval(pollTimer); pollTimer = null; }
+                            } catch (e) {}
+                        }, 3000);
+                    } catch (err) { jobError.value = `${t('requestFailed')}: ${err.message}`; } finally { uploading.value = false; }
+                };
+
+                onMounted(async () => {
+                    console.log('[mount] sessionId:', getSessionId());
+                    const ok = await ensureAuthenticated();
+                    console.log('[mount] ensureAuthenticated:', ok);
+                    if (!ok) return;
+                    await fetchUser();
+                    console.log('[mount] currentUser:', currentUser.value);
+                });
+
+                return {
+                    lang, currentUser, fileName, fileRef, uploading, jobId, jobStatus, jobError, reportUrl, logs,
+                    statusLabel, statusBadgeStyle, t, portalUrl, handleLogout, handleFileChange, startUpload
+                };
+            }
+        }).mount('#app');
     </script>
 </body>
 </html>
