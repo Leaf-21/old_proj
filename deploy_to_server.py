@@ -15,7 +15,7 @@ def create_zip(zip_name):
     print(f"正在打包项目到 {zip_name}...")
     exclude_dirs = {
         'venv', '__pycache__', '.git', '.idea', '.vscode', 
-        'logs', 'reports', 'node_modules', 'frontend' # 暂时只部署后端，前端通常单独部署或作为静态文件
+        'logs', 'reports', 'node_modules' # 保留 frontend
     }
     # 也可以包含 frontend 如果是前后端不分离或者静态文件由后端 serve
     # 根据 LS 结果，frontend 只有 index.html 和快捷方式，后端 static 也有 index.html

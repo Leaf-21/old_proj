@@ -22,11 +22,11 @@
                 <div class="hidden sm:flex items-center gap-4 text-xs text-slate-400">
                     <div class="flex items-center gap-1.5">
                         <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span>API: http://127.0.0.1:8000/api/v1/jobs/upload</span>
+                        <span>API: /api/v1/jobs/upload</span>
                     </div>
                     <div class="flex items-center gap-1.5">
                         <span class="h-2 w-2 rounded-full bg-cyan-400"></span>
-                        <span>后端: FastAPI + LLM</span>
+                        <span>后端: FastAPI + Celery + LLM</span>
                     </div>
                 </div>
             </div>
@@ -148,7 +148,7 @@
     </div>
 
     <script>
-        const API_BASE = 'http://127.0.0.1:8000';
+        const API_BASE = '';
 
         const fileInput = document.getElementById('file-input');
         const fileLabel = document.getElementById('file-label');
