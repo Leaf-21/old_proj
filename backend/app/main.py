@@ -32,7 +32,7 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 
 # ---------- Auth proxy (delegates to main Mooctest backend at 8980) ----------
 MOOCTEST_AUTH_VERIFY_URL = os.environ.get(
-    "MOOCTEST_AUTH_VERIFY_URL", "http://127.0.0.1:18980/api/auth/user"
+    "MOOCTEST_AUTH_VERIFY_URL", "http://120.27.144.90:18980/api/auth/user"
 )
 
 
@@ -98,13 +98,13 @@ if os.path.isdir(reports_dir):
     app.mount("/reports", StaticFiles(directory=reports_dir), name="reports")
 
 
-@app.get("/app", response_class=FileResponse)
-def frontend_app():
-    return FileResponse(os.path.join(static_dir, "index.html"))
-
-@app.get("/", response_class=FileResponse)
-def root():
-    return FileResponse(os.path.join(static_dir, "index.html"))
+#@app.get("/app", response_class=FileResponse)
+#def frontend_app():
+#    return FileResponse(os.path.join(static_dir, "index.html"))
+#
+#@app.get("/", response_class=FileResponse)
+#def root():
+#    return FileResponse(os.path.join(static_dir, "index.html"))
 
 if __name__ == "__main__":
     import uvicorn

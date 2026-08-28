@@ -5,7 +5,7 @@ import time
 import sys
 
 # 服务器信息
-SERVER_IP = "116.62.36.24"
+SERVER_IP = "120.27.144.90"
 USERNAME = "root"
 PASSWORD = "maKmUY2QZ*^Bep6}"
 REMOTE_DIR = "/root/app"

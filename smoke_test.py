@@ -4,7 +4,7 @@ import os
 import sys
 
 # 服务器地址
-BASE_URL = "http://116.62.36.24:8000"
+BASE_URL = "http://120.27.144.90:8000"
 # 测试文件路径 (使用项目中的 sample_test_results.xlsx)
 TEST_FILE = "sample_test_results.xlsx"
 

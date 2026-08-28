@@ -25,7 +25,7 @@ router = APIRouter()
 
 TOOL_ID = os.environ.get("MOOCTEST_TOOL_ID", "test-report")
 MOOCTEST_JOBS_BASE_URL = os.environ.get(
-    "MOOCTEST_JOBS_BASE_URL", "http://127.0.0.1:18980/api/jobs"
+    "MOOCTEST_JOBS_BASE_URL", "http://120.27.144.90:18980/api/jobs"
 )
 
 
